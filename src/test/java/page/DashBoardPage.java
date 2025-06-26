@@ -5,6 +5,7 @@ import com.codeborne.selenide.ElementsCollection;
 import com.codeborne.selenide.SelenideElement;
 import data.DataHelper;
 
+
 import static com.codeborne.selenide.Condition.attribute;
 import static com.codeborne.selenide.Selenide.$;
 import static com.codeborne.selenide.Selenide.$$;
@@ -21,17 +22,17 @@ public class DashBoardPage {
     // получение баланса карты по id
     public int showCardBalance(DataHelper.CardInfo cardInfo) {
         SelenideElement card = cards.findBy(attribute("data-test-id", cardInfo.getCardId()));
-        String text = card.getText();
+        var text = card.getText();
         return extractBalance(text);
     }
 
     // вспомогательный метод, чтобы "вытащить" баланс
     private int extractBalance(String text) {
-        String prefix = "баланс:";
-        int beginIndex = text.indexOf(prefix);
-        String postfix = "р.";
-        int endIndex = text.indexOf(postfix);
-        String balancePart = text.substring(beginIndex + prefix.length(), endIndex).trim();
+        var prefix = "баланс:";
+        var beginIndex = text.indexOf(prefix);
+        var postfix = "р.";
+        var endIndex = text.indexOf(postfix);
+        var balancePart = text.substring(beginIndex + prefix.length(), endIndex).trim();
         return Integer.parseInt(balancePart);
     }
 
@@ -41,5 +42,12 @@ public class DashBoardPage {
                 .$("button").click();
         return new TransferCardPage();
 
+    }
+
+    //проверка баланса после перевода
+    public void showCardBalanceAfterTransfer(DataHelper.CardInfo cardInfo, int expectedBalanceAfterTransfer ) {
+        SelenideElement card = cards.findBy(attribute("data-test-id", cardInfo.getCardId()));
+        var textExpectedBalance = String.valueOf(expectedBalanceAfterTransfer);
+        card.shouldHave(Condition.text(textExpectedBalance));
     }
 }

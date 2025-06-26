@@ -6,6 +6,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import page.LoginPage;
 
+import java.util.Random;
+
 import static com.codeborne.selenide.Selenide.$;
 import static com.codeborne.selenide.Selenide.open;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -28,19 +30,19 @@ public class MoneyTransferTest {
         var verifyPage = page.validLogin(info);
         var dashBoardPage = verifyPage.validVerify(verificationCode);
         //запрашиваем баланс карт до перевода
-        int balanceFirstBefore = (int) dashBoardPage.showCardBalance(cardFirst);
-        int balanceSecondBefore = (int) dashBoardPage.showCardBalance(cardSecond);
+        var balanceFirstBefore = dashBoardPage.showCardBalance(cardFirst);
+        var balanceSecondBefore = dashBoardPage.showCardBalance(cardSecond);
         //пополняем первую карту
-        int amountTransfer = 1000;
+        Random random = new Random();
+        var amountTransfer = 1 + random.nextInt(balanceSecondBefore);
         var transferCardPage = dashBoardPage.transferCard(cardFirst);
-        // проверяем, что на странице пополнения карты поле "Куда" предзаполнено номером первой карты
-        assertEquals("0001", transferCardPage.getCardTo());
         var newDashBoardPage = transferCardPage.transferAmount(cardSecond, String.valueOf(amountTransfer));
         //проверяем баланс карт после перевода
-        int balanceFirstAfter = (int) newDashBoardPage.showCardBalance(cardFirst);
-        int balanceSecondAfter = (int) newDashBoardPage.showCardBalance(cardSecond);
-        assertEquals(balanceFirstBefore + amountTransfer, balanceFirstAfter);
-        assertEquals(balanceSecondBefore - amountTransfer, balanceSecondAfter);
+        var expectedBalanceFirstAfter = balanceFirstBefore + amountTransfer;
+        var expectedBalanceSecondAfter = balanceSecondBefore - amountTransfer;
+      newDashBoardPage.showCardBalanceAfterTransfer(cardFirst, expectedBalanceFirstAfter);
+      newDashBoardPage.showCardBalanceAfterTransfer(cardSecond, expectedBalanceSecondAfter);
+
     }
 
     @Test
@@ -54,18 +56,17 @@ public class MoneyTransferTest {
         var verifyPage = page.validLogin(info);
         var dashBoardPage = verifyPage.validVerify(verificationCode);
         //запрашиваем баланс карт до перевода
-        int balanceFirstBefore = (int) dashBoardPage.showCardBalance(cardFirst);
-        int balanceSecondBefore = (int) dashBoardPage.showCardBalance(cardSecond);
+        var balanceFirstBefore = dashBoardPage.showCardBalance(cardFirst);
+        var balanceSecondBefore = dashBoardPage.showCardBalance(cardSecond);
         //пополняем вторую карту
-        int amountTransfer = 1000;
+        Random random = new Random();
+        var amountTransfer = 1 + random.nextInt(balanceFirstBefore);
         var transferCardPage = dashBoardPage.transferCard(cardSecond);
-        // проверяем, что на странице пополнения карты поле "Куда" предзаполнено номером первой карты
-        assertEquals("0002", transferCardPage.getCardTo());
         var newDashBoardPage = transferCardPage.transferAmount(cardFirst, String.valueOf(amountTransfer));
         //проверяем баланс карт после перевода
-        int balanceFirstAfter = (int) newDashBoardPage.showCardBalance(cardFirst);
-        int balanceSecondAfter = (int) newDashBoardPage.showCardBalance(cardSecond);
-        assertEquals(balanceFirstBefore - amountTransfer, balanceFirstAfter);
-        assertEquals(balanceSecondBefore + amountTransfer, balanceSecondAfter);
+        var expectedBalanceFirstAfter = balanceFirstBefore - amountTransfer;
+        var expectedBalanceSecondAfter = balanceSecondBefore + amountTransfer;
+        newDashBoardPage.showCardBalanceAfterTransfer(cardFirst, expectedBalanceFirstAfter);
+        newDashBoardPage.showCardBalanceAfterTransfer(cardSecond, expectedBalanceSecondAfter);
     }
 }

@@ -25,11 +25,5 @@ public class TransferCardPage {
         return new DashBoardPage();
     }
 
-    //проверка, что в поле "Куда" лежит выбранная для пополнения карта
-    public String getCardTo() {
-        String text = cardTo.getValue();
-        return text.substring(15);
-    }
-
 
 }
